@@ -118,3 +118,26 @@ def edit_course(id):
         "edit_course.html",
         course=course
     )
+@courses.route("/courses/delete/<int:id>")
+def delete_course(id):
+
+    connection = pymysql.connect(
+        host=DB_HOST,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        database=DB_NAME
+    )
+
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "DELETE FROM courses WHERE id=%s",
+        (id,)
+    )
+
+    connection.commit()
+
+    cursor.close()
+    connection.close()
+
+    return redirect("/courses")
