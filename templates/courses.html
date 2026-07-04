@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between mb-4">
+
+<h2>Courses</h2>
+
+<a href="/courses/add" class="btn btn-primary">
+
+Add Course
+
+</a>
+
+</div>
+
+<div class="card shadow">
+
+<div class="card-body">
+
+<table class="table table-bordered">
+
+<thead>
+
+<tr>
+
+<th>ID</th>
+<th>Course Name</th>
+<th>Instructor</th>
+<th>Description</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for course in courses %}
+
+<tr>
+
+<td>{{ course[0] }}</td>
+<td>{{ course[1] }}</td>
+<td>{{ course[2] }}</td>
+<td>{{ course[3] }}</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+{% endblock %}
