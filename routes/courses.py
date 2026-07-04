@@ -66,3 +66,55 @@ def add_course():
         return redirect("/courses")
 
     return render_template("add_course.html")
+@courses.route("/courses/edit/<int:id>", methods=["GET", "POST"])
+def edit_course(id):
+
+    connection = pymysql.connect(
+        host=DB_HOST,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        database=DB_NAME
+    )
+
+    cursor = connection.cursor()
+
+    if request.method == "POST":
+
+        course_name = request.form["course_name"]
+        instructor = request.form["instructor"]
+        description = request.form["description"]
+
+        sql = """
+        UPDATE courses
+        SET course_name=%s,
+            instructor=%s,
+            description=%s
+        WHERE id=%s
+        """
+
+        cursor.execute(
+            sql,
+            (course_name, instructor, description, id)
+        )
+
+        connection.commit()
+
+        cursor.close()
+        connection.close()
+
+        return redirect("/courses")
+
+    cursor.execute(
+        "SELECT * FROM courses WHERE id=%s",
+        (id,)
+    )
+
+    course = cursor.fetchone()
+
+    cursor.close()
+    connection.close()
+
+    return render_template(
+        "edit_course.html",
+        course=course
+    )

@@ -28,6 +28,7 @@ Add Course
 <th>Course Name</th>
 <th>Instructor</th>
 <th>Description</th>
+<th>Actions</th>
 
 </tr>
 
@@ -43,6 +44,18 @@ Add Course
 <td>{{ course[1] }}</td>
 <td>{{ course[2] }}</td>
 <td>{{ course[3] }}</td>
+
+<td>
+
+<a
+href="/courses/edit/{{ course[0] }}"
+class="btn btn-warning btn-sm">
+
+Edit
+
+</a>
+
+</td>
 
 </tr>
 
