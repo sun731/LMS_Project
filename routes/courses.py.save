@@ -7,10 +7,8 @@ courses = Blueprint("courses", __name__)
 
 @courses.route("/courses")
 def view_courses():
-
     if "student" not in session:
-        return redirect("/login")
-
+     return redirect("/login")
     connection = pymysql.connect(
         host=DB_HOST,
         user=DB_USER,
@@ -37,8 +35,8 @@ def view_courses():
 def add_course():
 
     if "student" not in session:
-        return redirect("/login")
-
+      return redirect("/login")
+ 
     if request.method == "POST":
 
         course_name = request.form["course_name"]
@@ -72,13 +70,10 @@ def add_course():
         return redirect("/courses")
 
     return render_template("add_course.html")
-
-
 @courses.route("/courses/edit/<int:id>", methods=["GET", "POST"])
 def edit_course(id):
-
     if "student" not in session:
-        return redirect("/login")
+      return redirect("/login")
 
     connection = pymysql.connect(
         host=DB_HOST,
@@ -129,13 +124,8 @@ def edit_course(id):
         "edit_course.html",
         course=course
     )
-
-
 @courses.route("/courses/delete/<int:id>")
 def delete_course(id):
-
-    if "student" not in session:
-        return redirect("/login")
 
     connection = pymysql.connect(
         host=DB_HOST,
