@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, session
 import pymysql
-
 from config import *
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -44,7 +43,7 @@ def register():
         cursor.close()
         connection.close()
 
-        return redirect("/")
+        return redirect("/login")
 
     return render_template("register.html")
 
@@ -81,6 +80,7 @@ def login():
             if check_password_hash(student[3], password):
 
                 session["student"] = student[1]
+                session["student_id"] = student[0]
 
                 return redirect("/dashboard")
 
@@ -104,6 +104,6 @@ def dashboard():
 @auth.route("/logout")
 def logout():
 
-    session.pop("student", None)
+    session.clear()
 
-    return redirect("/")
+    return redirect("/login")

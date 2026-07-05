@@ -45,21 +45,25 @@
                         <td>{{ course[2] }}</td>
                         <td>{{ course[3] }}</td>
 
-                        <td>
+<td>
 
-                            <a href="/courses/edit/{{ course[0] }}"
-                               class="btn btn-warning btn-sm">
-                                Edit
-                            </a>
+    <a href="/enroll/{{ course[0] }}"
+       class="btn btn-success btn-sm">
+        Enroll
+    </a>
 
-                            <a href="/courses/delete/{{ course[0] }}"
-                               class="btn btn-danger btn-sm"
-                               onclick="return confirm('Are you sure you want to delete this course?')">
-                                Delete
-                            </a>
+    <a href="/courses/edit/{{ course[0] }}"
+       class="btn btn-warning btn-sm">
+        Edit
+    </a>
 
-                        </td>
+    <a href="/courses/delete/{{ course[0] }}"
+       class="btn btn-danger btn-sm"
+       onclick="return confirm('Are you sure you want to delete this course?')">
+        Delete
+    </a>
 
+</td>
                     </tr>
 
                     {% endfor %}
