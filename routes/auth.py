@@ -95,11 +95,38 @@ def dashboard():
     if "student" not in session:
         return redirect("/login")
 
-    return render_template(
-        "dashboard.html",
-        student=session["student"]
+    connection = pymysql.connect(
+        host=DB_HOST,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        database=DB_NAME
     )
 
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT COUNT(*) FROM students")
+    students = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM courses")
+    courses = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM enrollments")
+    enrollments = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM materials")
+    materials = cursor.fetchone()[0]
+
+    cursor.close()
+    connection.close()
+
+    return render_template(
+        "dashboard.html",
+        student=session["student"],
+        students=students,
+        courses=courses,
+        enrollments=enrollments,
+        materials=materials
+    )
 
 @auth.route("/logout")
 def logout():
