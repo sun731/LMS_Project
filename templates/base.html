@@ -18,49 +18,54 @@
 
 <div class="container">
 
-<a class="navbar-brand" href="/">
-Cloud LMS
-</a>
+<a class="navbar-brand" href="/">Cloud LMS</a>
 
 <ul class="navbar-nav ms-auto">
 
+{% if "student" not in session %}
+
 <li class="nav-item">
-<a class="nav-link" href="/">Home</a>
+    <a class="nav-link" href="/">Home</a>
 </li>
 
 <li class="nav-item">
-<a class="nav-link" href="/register">Register</a>
+    <a class="nav-link" href="/register">Register</a>
 </li>
 
 <li class="nav-item">
-<a class="nav-link" href="/login">Login</a>
+    <a class="nav-link" href="/login">Login</a>
+</li>
+
+{% else %}
+
+<li class="nav-item">
+    <a class="nav-link" href="/dashboard">Dashboard</a>
 </li>
 
 <li class="nav-item">
-<a class="nav-link" href="/dashboard">Dashboard</a>
+    <a class="nav-link" href="/courses">Courses</a>
 </li>
 
 <li class="nav-item">
-    <a class="nav-link" href="/courses">
-        Courses
-    </a>
+    <a class="nav-link" href="/mycourses">My Courses</a>
 </li>
 
 <li class="nav-item">
-    <a class="nav-link" href="/mycourses">
-        My Courses
-    </a>
+    <a class="nav-link" href="/materials">Materials</a>
 </li>
 
 <li class="nav-item">
-    <a class="nav-link" href="/materials">
-        Materials
-    </a>
+    <span class="navbar-text text-white me-3">
+        Welcome, {{ session["student"] }}
+        ({{ session["role"]|capitalize }})
+    </span>
 </li>
 
 <li class="nav-item">
-<a class="nav-link" href="/logout">Logout</a>
+    <a class="nav-link" href="/logout">Logout</a>
 </li>
+
+{% endif %}
 
 </ul>
 
@@ -71,10 +76,10 @@ Cloud LMS
 <div class="container mt-5">
 
 {% block content %}
-
 {% endblock %}
 
 </div>
+
 <hr>
 
 <footer class="text-center mt-4 mb-3">

@@ -6,9 +6,11 @@
 
     <h2>Courses</h2>
 
+    {% if session["role"] == "admin" %}
     <a href="/courses/add" class="btn btn-primary">
         Add Course
     </a>
+    {% endif %}
 
 </div>
 
@@ -21,13 +23,11 @@
             <thead class="table-dark">
 
                 <tr>
-
                     <th>ID</th>
                     <th>Course Name</th>
                     <th>Instructor</th>
                     <th>Description</th>
                     <th>Actions</th>
-
                 </tr>
 
             </thead>
@@ -45,25 +45,30 @@
                         <td>{{ course[2] }}</td>
                         <td>{{ course[3] }}</td>
 
-<td>
+                        <td>
 
-    <a href="/enroll/{{ course[0] }}"
-       class="btn btn-success btn-sm">
-        Enroll
-    </a>
+                            <a href="/enroll/{{ course[0] }}"
+                               class="btn btn-success btn-sm">
+                                Enroll
+                            </a>
 
-    <a href="/courses/edit/{{ course[0] }}"
-       class="btn btn-warning btn-sm">
-        Edit
-    </a>
+                            {% if session["role"] == "admin" %}
 
-    <a href="/courses/delete/{{ course[0] }}"
-       class="btn btn-danger btn-sm"
-       onclick="return confirm('Are you sure you want to delete this course?')">
-        Delete
-    </a>
+                            <a href="/courses/edit/{{ course[0] }}"
+                               class="btn btn-warning btn-sm">
+                                Edit
+                            </a>
 
-</td>
+                            <a href="/courses/delete/{{ course[0] }}"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Are you sure you want to delete this course?')">
+                                Delete
+                            </a>
+
+                            {% endif %}
+
+                        </td>
+
                     </tr>
 
                     {% endfor %}
@@ -73,9 +78,7 @@
                     <tr>
 
                         <td colspan="5" class="text-center text-muted">
-
                             No courses available.
-
                         </td>
 
                     </tr>

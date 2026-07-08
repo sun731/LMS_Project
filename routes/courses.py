@@ -39,6 +39,9 @@ def add_course():
     if "student" not in session:
         return redirect("/login")
 
+    if session.get("role") != "admin":
+        return "Access Denied", 403
+
     if request.method == "POST":
 
         course_name = request.form["course_name"]
@@ -79,6 +82,9 @@ def edit_course(id):
 
     if "student" not in session:
         return redirect("/login")
+
+    if session.get("role") != "admin":
+        return "Access Denied", 403
 
     connection = pymysql.connect(
         host=DB_HOST,
@@ -136,6 +142,9 @@ def delete_course(id):
 
     if "student" not in session:
         return redirect("/login")
+
+    if session.get("role") != "admin":
+        return "Access Denied", 403
 
     connection = pymysql.connect(
         host=DB_HOST,

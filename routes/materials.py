@@ -7,13 +7,12 @@ from config import *
 materials = Blueprint("materials", __name__)
 
 # Create S3 client
-from botocore.client import Config
-
 s3 = boto3.client(
     "s3",
     region_name=AWS_REGION,
     config=Config(signature_version="s3v4")
 )
+
 
 @materials.route("/materials")
 def view_materials():
@@ -57,6 +56,9 @@ def upload_material():
     if "student" not in session:
         return redirect("/login")
 
+    if session.get("role") != "admin":
+        return "Access Denied", 403
+
     if request.method == "POST":
 
         title = request.form["title"]
@@ -65,7 +67,7 @@ def upload_material():
         file = request.files["file"]
         filename = file.filename
 
-        # Upload directly to Amazon S3
+        # Upload file to Amazon S3
         s3.upload_fileobj(
             file,
             S3_BUCKET,
@@ -132,9 +134,5 @@ def download_material(filename):
         },
         ExpiresIn=300
     )
-
-    print("\n========== PRESIGNED URL ==========")
-    print(url)
-    print("==================================\n")
 
     return redirect(url)

@@ -31,12 +31,13 @@ def register():
 
         cursor = connection.cursor()
 
-        sql = """
-        INSERT INTO students(name, email, password)
-        VALUES (%s, %s, %s)
-        """
-
-        cursor.execute(sql, (name, email, hashed_password))
+        cursor.execute(
+            """
+            INSERT INTO students(name, email, password)
+            VALUES(%s, %s, %s)
+            """,
+            (name, email, hashed_password)
+        )
 
         connection.commit()
 
@@ -75,14 +76,13 @@ def login():
         cursor.close()
         connection.close()
 
-        if student:
+        if student and check_password_hash(student[3], password):
 
-            if check_password_hash(student[3], password):
+            session["student"] = student[1]
+            session["student_id"] = student[0]
+            session["role"] = student[4]
 
-                session["student"] = student[1]
-                session["student_id"] = student[0]
-
-                return redirect("/dashboard")
+            return redirect("/dashboard")
 
         return "Invalid Email or Password"
 
@@ -105,16 +105,25 @@ def dashboard():
     cursor = connection.cursor()
 
     cursor.execute("SELECT COUNT(*) FROM students")
-    students = cursor.fetchone()[0]
+    total_students = cursor.fetchone()[0]
 
     cursor.execute("SELECT COUNT(*) FROM courses")
-    courses = cursor.fetchone()[0]
+    total_courses = cursor.fetchone()[0]
 
     cursor.execute("SELECT COUNT(*) FROM enrollments")
-    enrollments = cursor.fetchone()[0]
+    total_enrollments = cursor.fetchone()[0]
 
     cursor.execute("SELECT COUNT(*) FROM materials")
-    materials = cursor.fetchone()[0]
+    total_materials = cursor.fetchone()[0]
+
+    cursor.execute("""
+        SELECT course_name, instructor
+        FROM courses
+        ORDER BY id DESC
+        LIMIT 5
+    """)
+
+    recent_courses = cursor.fetchall()
 
     cursor.close()
     connection.close()
@@ -122,11 +131,13 @@ def dashboard():
     return render_template(
         "dashboard.html",
         student=session["student"],
-        students=students,
-        courses=courses,
-        enrollments=enrollments,
-        materials=materials
+        total_students=total_students,
+        total_courses=total_courses,
+        total_enrollments=total_enrollments,
+        total_materials=total_materials,
+        recent_courses=recent_courses
     )
+
 
 @auth.route("/logout")
 def logout():

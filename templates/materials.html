@@ -4,17 +4,23 @@
 
 <div class="container mt-4">
 
-    <h2>Course Materials</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <h2>Course Materials</h2>
+
+        {% if session["role"] == "admin" %}
+        <a href="/materials/upload" class="btn btn-success">
+            Upload Material
+        </a>
+        {% endif %}
+
+    </div>
 
     <hr>
 
-    <a href="/materials/upload" class="btn btn-success mb-3">
-        Upload Material
-    </a>
-
     {% if materials %}
 
-    <table class="table table-bordered table-striped">
+    <table class="table table-bordered table-striped table-hover">
 
         <thead class="table-dark">
 
@@ -38,10 +44,12 @@
                 <td>{{ material[2] }}</td>
 
                 <td>
+
                     <a href="/materials/download/{{ material[2] }}"
                        class="btn btn-primary btn-sm">
                         Download
                     </a>
+
                 </td>
 
             </tr>
