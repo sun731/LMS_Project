@@ -1,10 +1,19 @@
-from flask import Blueprint, render_template, session, redirect, request, send_from_directory
+from flask import Blueprint, render_template, session, redirect, request
 import pymysql
-import os
+import boto3
+from botocore.client import Config
 from config import *
 
 materials = Blueprint("materials", __name__)
 
+# Create S3 client
+from botocore.client import Config
+
+s3 = boto3.client(
+    "s3",
+    region_name=AWS_REGION,
+    config=Config(signature_version="s3v4")
+)
 
 @materials.route("/materials")
 def view_materials():
@@ -54,10 +63,14 @@ def upload_material():
         course_id = request.form["course_id"]
 
         file = request.files["file"]
-
         filename = file.filename
 
-        file.save(os.path.join("uploads", filename))
+        # Upload directly to Amazon S3
+        s3.upload_fileobj(
+            file,
+            S3_BUCKET,
+            filename
+        )
 
         connection = pymysql.connect(
             host=DB_HOST,
@@ -111,8 +124,17 @@ def download_material(filename):
     if "student" not in session:
         return redirect("/login")
 
-    return send_from_directory(
-        "uploads",
-        filename,
-        as_attachment=True
+    url = s3.generate_presigned_url(
+        ClientMethod="get_object",
+        Params={
+            "Bucket": S3_BUCKET,
+            "Key": filename
+        },
+        ExpiresIn=300
     )
+
+    print("\n========== PRESIGNED URL ==========")
+    print(url)
+    print("==================================\n")
+
+    return redirect(url)
