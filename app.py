@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from routes.auth import auth
 from routes.courses import courses
 from routes.enrollments import enrollments
@@ -11,6 +11,13 @@ app.register_blueprint(auth)
 app.register_blueprint(courses)
 app.register_blueprint(enrollments)
 app.register_blueprint(materials)
+@app.errorhandler(403)
+def forbidden(error):
+    return render_template("403.html"), 403
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template("404.html"), 404
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, session
+from flask import Blueprint, render_template, request, redirect, session, flash, abort
 import pymysql
 from config import *
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -44,6 +44,8 @@ def register():
         cursor.close()
         connection.close()
 
+        flash("Registration successful! Please login.", "success")
+
         return redirect("/login")
 
     return render_template("register.html")
@@ -76,15 +78,21 @@ def login():
         cursor.close()
         connection.close()
 
-        if student and check_password_hash(student[3], password):
+        if student:
 
-            session["student"] = student[1]
-            session["student_id"] = student[0]
-            session["role"] = student[4]
+            if check_password_hash(student[3], password):
 
-            return redirect("/dashboard")
+                session["student"] = student[1]
+                session["student_id"] = student[0]
+                session["role"] = student[4]
 
-        return "Invalid Email or Password"
+                flash(f"Welcome, {student[1]}!", "success")
+
+                return redirect("/dashboard")
+
+        flash("Invalid Email or Password.", "danger")
+
+        return redirect("/login")
 
     return render_template("login.html")
 
@@ -138,10 +146,75 @@ def dashboard():
         recent_courses=recent_courses
     )
 
+@auth.route("/admin")
+def admin():
+
+    if "student" not in session:
+        return redirect("/login")
+
+    if session.get("role") != "admin":
+        abort(403)
+
+    connection = pymysql.connect(
+        host=DB_HOST,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        database=DB_NAME
+    )
+
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT id, name, email, password, role
+        FROM students
+        ORDER BY id
+    """)
+
+    users = cursor.fetchall()
+
+    cursor.close()
+    connection.close()
+
+    return render_template(
+        "admin.html",
+        users=users
+    )
+
+@auth.route("/profile")
+def profile():
+
+    if "student" not in session:
+        return redirect("/login")
+
+    connection = pymysql.connect(
+        host=DB_HOST,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        database=DB_NAME
+    )
+
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "SELECT * FROM students WHERE id=%s",
+        (session["student_id"],)
+    )
+
+    student = cursor.fetchone()
+
+    cursor.close()
+    connection.close()
+
+    return render_template(
+        "profile.html",
+        student=student
+    )
 
 @auth.route("/logout")
 def logout():
 
     session.clear()
+
+    flash("You have been logged out successfully.", "info")
 
     return redirect("/login")

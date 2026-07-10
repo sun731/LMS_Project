@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, session
+from flask import Blueprint, render_template, request, redirect, session, flash, abort
 import pymysql
 from config import *
 
@@ -11,6 +11,8 @@ def view_courses():
     if "student" not in session:
         return redirect("/login")
 
+    search = request.args.get("search", "").strip()
+
     connection = pymysql.connect(
         host=DB_HOST,
         user=DB_USER,
@@ -20,7 +22,19 @@ def view_courses():
 
     cursor = connection.cursor()
 
-    cursor.execute("SELECT * FROM courses")
+    if search:
+
+        cursor.execute(
+            """
+            SELECT * FROM courses
+            WHERE course_name LIKE %s
+            """,
+            ("%" + search + "%",)
+        )
+
+    else:
+
+        cursor.execute("SELECT * FROM courses")
 
     course_list = cursor.fetchall()
 
@@ -29,9 +43,9 @@ def view_courses():
 
     return render_template(
         "courses.html",
-        courses=course_list
+        courses=course_list,
+        search=search
     )
-
 
 @courses.route("/courses/add", methods=["GET", "POST"])
 def add_course():
@@ -40,7 +54,7 @@ def add_course():
         return redirect("/login")
 
     if session.get("role") != "admin":
-        return "Access Denied", 403
+        abort(403)
 
     if request.method == "POST":
 
@@ -57,13 +71,11 @@ def add_course():
 
         cursor = connection.cursor()
 
-        sql = """
-        INSERT INTO courses(course_name, instructor, description)
-        VALUES (%s, %s, %s)
-        """
-
         cursor.execute(
-            sql,
+            """
+            INSERT INTO courses(course_name, instructor, description)
+            VALUES(%s, %s, %s)
+            """,
             (course_name, instructor, description)
         )
 
@@ -71,6 +83,8 @@ def add_course():
 
         cursor.close()
         connection.close()
+
+        flash("Course added successfully!", "success")
 
         return redirect("/courses")
 
@@ -84,7 +98,7 @@ def edit_course(id):
         return redirect("/login")
 
     if session.get("role") != "admin":
-        return "Access Denied", 403
+        abort(403)
 
     connection = pymysql.connect(
         host=DB_HOST,
@@ -101,16 +115,14 @@ def edit_course(id):
         instructor = request.form["instructor"]
         description = request.form["description"]
 
-        sql = """
-        UPDATE courses
-        SET course_name=%s,
-            instructor=%s,
-            description=%s
-        WHERE id=%s
-        """
-
         cursor.execute(
-            sql,
+            """
+            UPDATE courses
+            SET course_name=%s,
+                instructor=%s,
+                description=%s
+            WHERE id=%s
+            """,
             (course_name, instructor, description, id)
         )
 
@@ -118,6 +130,8 @@ def edit_course(id):
 
         cursor.close()
         connection.close()
+
+        flash("Course updated successfully!", "success")
 
         return redirect("/courses")
 
@@ -144,7 +158,7 @@ def delete_course(id):
         return redirect("/login")
 
     if session.get("role") != "admin":
-        return "Access Denied", 403
+        abort(403)
 
     connection = pymysql.connect(
         host=DB_HOST,
@@ -164,5 +178,7 @@ def delete_course(id):
 
     cursor.close()
     connection.close()
+
+    flash("Course deleted successfully!", "warning")
 
     return redirect("/courses")

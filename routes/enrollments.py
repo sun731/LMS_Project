@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session, redirect
+from flask import Blueprint, render_template, session, redirect, flash
 import pymysql
 from config import *
 
@@ -70,7 +70,11 @@ def enroll(course_id):
 
     existing = cursor.fetchone()
 
-    if not existing:
+    if existing:
+
+        flash("You are already enrolled in this course.", "warning")
+
+    else:
 
         cursor.execute(
             """
@@ -82,7 +86,10 @@ def enroll(course_id):
 
         connection.commit()
 
+        flash("Enrollment successful!", "success")
+
     cursor.close()
     connection.close()
 
     return redirect("/mycourses")
+

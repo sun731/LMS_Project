@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session, redirect, request
+from flask import Blueprint, render_template, session, redirect, request, flash, abort
 import pymysql
 import boto3
 from botocore.client import Config
@@ -6,7 +6,7 @@ from config import *
 
 materials = Blueprint("materials", __name__)
 
-# Create S3 client
+# Amazon S3 Client
 s3 = boto3.client(
     "s3",
     region_name=AWS_REGION,
@@ -57,7 +57,7 @@ def upload_material():
         return redirect("/login")
 
     if session.get("role") != "admin":
-        return "Access Denied", 403
+        abort(403)
 
     if request.method == "POST":
 
@@ -67,7 +67,7 @@ def upload_material():
         file = request.files["file"]
         filename = file.filename
 
-        # Upload file to Amazon S3
+        # Upload to Amazon S3
         s3.upload_fileobj(
             file,
             S3_BUCKET,
@@ -95,6 +95,8 @@ def upload_material():
 
         cursor.close()
         connection.close()
+
+        flash("Material uploaded successfully!", "success")
 
         return redirect("/materials")
 
