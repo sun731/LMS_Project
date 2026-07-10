@@ -12,7 +12,11 @@ s3 = boto3.client(
     region_name=AWS_REGION,
     config=Config(signature_version="s3v4")
 )
-
+def allowed_file(filename):
+    return (
+        "." in filename and
+        filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+    )
 
 @materials.route("/materials")
 def view_materials():
@@ -66,6 +70,14 @@ def upload_material():
 
         file = request.files["file"]
         filename = file.filename
+        if not allowed_file(filename):
+            
+            flash(
+                    "Only PDF, DOC, DOCX, PPT, PPTX and TXT files are allowed.",
+                    "danger"
+            )
+
+            return redirect("/materials/upload")
 
         # Upload to Amazon S3
         s3.upload_fileobj(

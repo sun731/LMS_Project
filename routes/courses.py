@@ -71,6 +71,23 @@ def add_course():
 
         cursor = connection.cursor()
 
+        # Check for duplicate course
+        cursor.execute(
+            "SELECT * FROM courses WHERE course_name=%s",
+            (course_name,)
+        )
+
+        existing = cursor.fetchone()
+
+        if existing:
+
+            cursor.close()
+            connection.close()
+
+            flash("Course already exists.", "warning")
+
+            return redirect("/courses/add")
+
         cursor.execute(
             """
             INSERT INTO courses(course_name, instructor, description)
