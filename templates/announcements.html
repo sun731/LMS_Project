@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <h2>Announcements</h2>
+
+    {% if session["role"] == "admin" %}
+    <a href="/announcements/add" class="btn btn-primary">
+        Post Announcement
+    </a>
+    {% endif %}
+
+</div>
+
+{% if announcements %}
+
+    {% for announcement in announcements %}
+
+    <div class="card shadow mb-3">
+
+        <div class="card-body">
+
+            <h4>{{ announcement[1] }}</h4>
+
+            <p>{{ announcement[2] }}</p>
+
+            <small class="text-muted">
+                Posted: {{ announcement[3] }}
+            </small>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+{% else %}
+
+<div class="alert alert-info">
+
+    No announcements available.
+
+</div>
+
+{% endif %}
+
+{% endblock %}
