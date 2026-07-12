@@ -2,3 +2,7 @@ venv/
 __pycache__/
 *.pyc
 *.zip
+
+uploads/
+lms_backup.sql
+test_db.py
